@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Prediction Portal - Login</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .form-box {
+      transition: all 0.6s ease;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .form-box.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Login Form -->
+  <div class="form-box active" id="login-box">
+    <h2>Login</h2>
+    <form onsubmit="return loginUser()">
+      <label for="login-username">Email</label>
+      <input type="text" id="login-username" placeholder="Enter Gmail" required>
+
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" placeholder="Enter password" required>
+
+      <button type="submit" class="btn">Login</button>
+      <p id="login-message" class="message"></p>
+    </form>
+    <p class="switch-text">Don't have an account? <button onclick="showRegister()">Register</button></p>
+  </div>
+
+  <!-- Register Form -->
+  <div class="form-box hidden" id="register-box">
+    <h2>Register</h2>
+    <form onsubmit="return registerUser()">
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="Enter your name" required>
+
+      <label for="mobile">Mobile No</label>
+      <input type="text" id="mobile" placeholder="Enter mobile number" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Enter Gmail address" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password" required>
+
+      <label for="repeat-password">Repeat Password</label>
+      <input type="password" id="repeat-password" placeholder="Repeat password" required>
+
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <p class="switch-text">Already have an account? <button onclick="showLogin()">Login</button></p>
+  </div>
+</div>
+
+<script>
+  function showRegister() {
+    document.getElementById('login-box').classList.remove('active');
+    setTimeout(() => {
+      document.getElementById('login-box').classList.add('hidden');
+      const reg = document.getElementById('register-box');
+      reg.classList.remove('hidden');
+      setTimeout(() => reg.classList.add('active'), 50);
+    }, 500);
+  }
+
+  function showLogin() {
+    document.getElementById('register-box').classList.remove('active');
+    setTimeout(() => {
+      document.getElementById('register-box').classList.add('hidden');
+      const log = document.getElementById('login-box');
+      log.classList.remove('hidden');
+      setTimeout(() => log.classList.add('active'), 50);
+    }, 500);
+  }
+
+  function registerUser() {
+    const name = document.getElementById('name').value;
+    const mobile = document.getElementById('mobile').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const repeatPassword = document.getElementById('repeat-password').value;
+
+    if (!email.endsWith("@gmail.com")) {
+      alert("Email must end with '@gmail.com'.");
+      return false;
+    }
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters long.");
+      return false;
+    }
+    if (password !== repeatPassword) {
+      alert("Passwords do not match!");
+      return false;
+    }
+
+    const user = { name, mobile, email, username: email, password };
+    localStorage.setItem('user', JSON.stringify(user));
+
+    alert("Registration successful! You can now log in.");
+    showLogin();
+    return false;
+  }
+
+  function loginUser() {
+    const inputUsername = document.getElementById('login-username').value;
+    const inputPassword = document.getElementById('login-password').value;
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+
+    if (storedUser && inputUsername === storedUser.username && inputPassword === storedUser.password) {
+      window.location.href = "dashboard.html";
+    } else {
+      const message = document.getElementById('login-message');
+      message.style.color = 'red';
+      message.textContent = 'Invalid username or password';
+    }
+    return false;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AgroVision - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+
+      /* ✅ Light green background + leaf photo */
+      background: #d8f3dc url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6") no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #2e7d32;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 12px 30px;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    header .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 220px;
+      height: 100%;
+      background-color: #2e7d32;
+      color: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+      padding-top: 60px;
+      transition: left 0.3s ease;
+      z-index: 999;
+    }
+    .sidebar.show {
+      left: 0;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar li {
+      padding: 15px 20px;
+      font-size: 1em;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .sidebar li:hover {
+      background-color: #1b5e20;
+    }
+
+    /* Hamburger Icon */
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      background: white;
+      color: #2e7d32;
+      padding: 6px 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* ✅ Dashboard main shifted */
+    .dashboard-main {
+      margin-top: 80px;
+      margin-left: 40px; /* default small margin */
+      transition: margin-left 0.3s ease;
+      padding: 30px 20px;
+      max-width: 1200px;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.92); /* ✅ white card */
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    /* ✅ When sidebar is open, shift more */
+    .sidebar.show ~ .dashboard-main {
+      margin-left: 240px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .dashboard-header h1 {
+      font-size: 2.5em;
+      color: #1b5e20;
+      margin: 0;
+    }
+
+    .tools-section h2 {
+      font-size: 2em;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    .tools-grid {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tool-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      max-width: 280px;
+      margin: auto;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    }
+
+    .icon-circle {
+      background-color: #e8f5e9;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .icon-circle i {
+      font-size: 2em;
+      color: #2e7d32;
+    }
+
+    .tool-card h3 {
+      color: #2e7d32;
+      margin: 0 0 10px 0;
+      font-size: 1.5em;
+    }
+
+    .tool-card p {
+      color: #666;
+      font-size: 0.95em;
+      line-height: 1.4;
+    }
+
+    /* ✅ Chatbot Styles */
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+    }
+    #chat-toggle img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    #chatbot-frame {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 0;             /* start hidden */
+      height: 0;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      transition: all 0.4s ease; /* smooth expand */
+    }
+
+    #chatbot-frame.open {
+      display: block;
+      width: 280px;          /* ✅ slimmer width */
+      height: 90vh;          /* ✅ taller height */
+    }
+  </style>
+</head>
+<body>
+
+<!-- ✅ Top Bar -->
+<header>
+  <span class="hamburger" onclick="toggleSidebar()">☰</span>
+  <div class="logo">AgroVision</div>
+</header>
+
+<!-- ✅ Sidebar Menu -->
+<div class="sidebar" id="sidebar">
+  <ul>
+    <li onclick="window.location.href='dashboard.html'">Dashboard</li>
+    <li onclick="window.location.href='crop_prediction.html'">Crop Prediction</li>
+    <li onclick="window.location.href='disease_prediction.html'">Disease Detection</li>
+    <li>My Profile</li>
+    <li>Logout</li>
+  </ul>
+</div>
+
+<!-- ✅ Main Dashboard Content -->
+<div class="dashboard-main" id="dashboard-main">
+  <div class="dashboard-header">
+    <h1 id="user-greeting">Welcome!</h1>
+  </div>
+
+  <section class="tools-section">
+    <h2>Quick Access</h2>
+    <div class="tools-grid">
+      <div class="tool-card" onclick="window.location.href='crop_prediction.html'">
+        <div class="icon-circle">
+          <i class="fas fa-seedling"></i>
+        </div>
+        <h3>Crop Prediction</h3>
+        <p>Get personalized crop recommendations based on your soil and environmental data.</p>
+      </div>
+
+      <div class="tool-card" onclick="window.location.href='disease_prediction.html'">
+        <div class="icon-circle">
+          <i class="fas fa-bug"></i>
+        </div>
+        <h3>Disease Detection</h3>
+        <p>Upload a photo of your plant to instantly detect and identify potential diseases.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ✅ Latest Innovations Section -->
+  <section style="margin-top: 80px;">
+    <h2 style="font-size: 2em; color: #2e7d32; margin-bottom: 20px;">🌱 Latest Agriculture Innovations</h2>
+    <div style="background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); line-height: 1.6;">
+      <ul style="padding-left: 20px;">
+        <li><strong>AI-driven soil sensors</strong> alert farmers when to irrigate, saving water and preventing root disease.</li>
+        <li><strong>Drones and satellite imaging</strong> detect crop stress early, turning full-day scouting into 10-minute reviews.</li>
+        <li><strong>CRISPR and genome editing</strong> boost drought resistance and nutrition in crops like rice and tomato.</li>
+        <li><strong>Smart irrigation systems</strong> use weather forecasts and soil data to reduce electricity and water usage.</li>
+        <li><strong>Blockchain tools</strong> improve supply chain transparency and reduce post-harvest losses.</li>
+      </ul>
+      <p style="margin-top: 20px; font-style: italic; color: #555;">Updated September 2025 • Powered by Farmonaut, FJDynamics, and The Hindu Business Line</p>
+    </div>
+  </section>
+</div>
+
+<!-- ✅ Chatbot Toggle Button -->
+<button id="chat-toggle" onclick="toggleChatbot()">
+  <img src="https://cdn-icons-png.flaticon.com/512/48/48593.png" alt="AgroBot Icon">
+</button>
+
+<!-- ✅ Embedded Chatbot -->
+<iframe id="chatbot-frame" src="chatbot.html"></iframe>
+
+<script>
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (user && user.name) {
+    document.getElementById('user-greeting').textContent = `Hello, ${user.name}!`;
+  } else {
+    document.getElementById('user-greeting').textContent = `Hello!`;
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('show');
+  }
+
+  /* ✅ Chatbot open/close animation */
+  function toggleChatbot() {
+    const frame = document.getElementById('chatbot-frame');
+    if (frame.classList.contains('open')) {
+      frame.classList.remove('open');
+      setTimeout(() => frame.style.display = 'none', 400); // wait for animation
+    } else {
+      frame.style.display = 'block';
+      setTimeout(() => frame.classList.add('open'), 10);
+    }
+  }
+</script>
+
+</body>
+</html>
